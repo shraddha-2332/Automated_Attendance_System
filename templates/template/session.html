@@ -1,0 +1,33 @@
+<!doctype html>
+<html>
+<head>
+  <title>Session Attendance</title>
+</head>
+<body>
+  <h1>Session Attendance</h1>
+  <a href="/">Back</a>
+  <table border="1">
+    <tr><th>Record ID</th><th>Name</th><th>Entry</th><th>Exit</th><th>Duration(s)</th><th>Status</th><th>Manual</th></tr>
+    {% for r in records %}
+    <tr>
+      <td>{{ r.id }}</td>
+      <td>{{ r.name }}</td>
+      <td>{{ r.entry_time }}</td>
+      <td>{{ r.exit_time }}</td>
+      <td>{{ r.duration_sec }}</td>
+      <td>{{ r.status }}</td>
+      <td>
+        <form method="post" action="/manual_update">
+          <input type="hidden" name="att_id" value="{{ r.id }}">
+          <select name="status">
+            <option>Present</option>
+            <option>Absent</option>
+          </select>
+          <button type="submit">Update</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!doctype html>
+<html>
+<head>
+  <title>Session Attendance</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <header>
+    <h1>Attendance Records - Session {{ session_id }}</h1>
+    <nav>
+      <a href="/">← Back to Dashboard</a>
+    </nav>
+  </header>
+
+  {% if records %}
+  <table>
+    <thead>
+      <tr>
+        <th>Student Name</th>
+        <th>Roll No</th>
+        <th>Entry Time</th>
+        <th>Exit Time</th>
+        <th>Duration (sec)</th>
+        <th>Status</th>
+        <th>Manual Override</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in records %}
+      <tr>
+        <td>{{ r.name }}</td>
+        <td>{{ r.roll_no or 'N/A' }}</td>
+        <td>{{ r.entry_time or 'Not recorded' }}</td>
+        <td>{{ r.exit_time or 'Not recorded' }}</td>
+        <td>{{ r.duration_sec or 0 }}</td>
+        <td>
+          <span class="status-{{ r.status.lower() }}">{{ r.status }}</span>
+        </td>
+        <td>
+          <form method="post" action="/manual_update" class="inline-form">
+            <input type="hidden" name="att_id" value="{{ r.id }}">
+            <select name="status" onchange="this.form.submit()">
+              <option value="Present" {% if r.status == 'Present' %}selected{% endif %}>Present</option>
+              <option value="Absent" {% if r.status == 'Absent' %}selected{% endif %}>Absent</option>
+            </select>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="alert info">
+    <p>No attendance records found for this session.</p>
+  </div>
+  {% endif %}
+
+  <div class="summary">
+    <h3>Session Summary</h3>
+    <p>Total Records: {{ records | length }}</p>
+    <p>Present: {{ records | selectattr('status', 'equalto', 'Present') | list | length }}</p>
+    <p>Absent: {{ records | selectattr('status', 'equalto', 'Absent') | list | length }}</p>
+  </div>
+</body>
+</html>

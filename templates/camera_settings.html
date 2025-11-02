@@ -1,0 +1,83 @@
+<!doctype html>
+<html>
+<head>
+  <title>Camera Settings - Smart Attendance</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <header>
+    <h1>Camera Configuration</h1>
+    <nav>
+      <a href="/">← Back to Dashboard</a>
+    </nav>
+  </header>
+  
+  <div class="settings-container">
+    <form action="/camera_settings" method="post">
+      <h3>Select Camera Source</h3>
+      
+      <div class="form-group">
+        <label for="camera_index">Camera Index:</label>
+        <select id="camera_index" name="camera_index" required>
+          <option value="0" {% if camera_index == 0 %}selected{% endif %}>0 - Built-in Laptop Camera</option>
+          <option value="1" {% if camera_index == 1 %}selected{% endif %}>1 - External USB Camera (Recommended)</option>
+          <option value="2" {% if camera_index == 2 %}selected{% endif %}>2 - Additional Camera 2</option>
+          <option value="3" {% if camera_index == 3 %}selected{% endif %}>3 - Additional Camera 3</option>
+        </select>
+      </div>
+      
+      <div class="camera-test">
+        <button type="button" onclick="testCamera()" class="btn-test">Test Selected Camera</button>
+        <span id="test-result" class="test-result"></span>
+      </div>
+      
+      <button type="submit" class="btn-save">Save Camera Settings</button>
+    </form>
+    
+    <div class="camera-help">
+      <h4>📷 Camera Setup Guide:</h4>
+      <ul>
+        <li><strong>Index 1 (Recommended):</strong> External USB camera - Best for classroom mounting</li>
+        <li><strong>Index 0:</strong> Built-in laptop webcam - Convenient but limited positioning</li>
+        <li><strong>Always test</strong> your camera before starting recognition</li>
+      </ul>
+      
+      <div class="tip">
+        <strong>Pro Tip:</strong> For classroom use, mount the external USB camera at the entrance 
+        or front of the classroom for optimal face capture.
+      </div>
+    </div>
+  </div>
+
+  <script>
+  function testCamera() {
+    const index = document.getElementById('camera_index').value;
+    const resultSpan = document.getElementById('test-result');
+    
+    resultSpan.textContent = 'Testing camera...';
+    resultSpan.className = 'test-result testing';
+    
+    fetch(`/test_camera/${index}`)
+      .then(response => response.json())
+      .then(data => {
+        if (data.status === 'success') {
+          resultSpan.textContent = '✓ ' + data.message;
+          resultSpan.className = 'test-result success';
+        } else {
+          resultSpan.textContent = '✗ ' + data.message;
+          resultSpan.className = 'test-result error';
+        }
+      })
+      .catch(error => {
+        resultSpan.textContent = '✗ Network error - cannot test camera';
+        resultSpan.className = 'test-result error';
+      });
+  }
+  
+  // Test the current camera on page load
+  window.addEventListener('load', function() {
+    testCamera();
+  });
+  </script>
+</body>
+</html>

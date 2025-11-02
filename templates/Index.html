@@ -1,0 +1,112 @@
+<!doctype html>
+<html>
+<head>
+  <title>Smart Attendance - Dashboard</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <header>
+    <h1>Smart Classroom Attendance System</h1>
+    <nav>
+      <a href="/camera_settings">Camera Settings</a>
+    </nav>
+  </header>
+
+  <div class="alert success">
+    {% if camera_index == 1 %}
+      <p>✓ Using External USB Camera (Index 1) - Optimal for classroom setup</p>
+    {% else %}
+      <p>ℹ Using Camera Index {{ camera_index }} - <a href="/camera_settings">Change to external camera</a></p>
+    {% endif %}
+  </div>
+
+  <h2>Today's Sessions - {{ "now" | datetimeformat }}</h2>
+  
+  {% if sessions %}
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Subject</th>
+        <th>Teacher</th>
+        <th>Date</th>
+        <th>Start</th>
+        <th>End</th>
+        <th>Active</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for s in sessions %}
+      <tr>
+        <td>{{ s.id }}</td>
+        <td>{{ s.subject or 'N/A' }}</td>
+        <td>{{ s.teacher }}</td>
+        <td>{{ s.date }}</td>
+        <td>{{ s.start_time }}</td>
+        <td>{{ s.end_time }}</td>
+        <td>
+          {% if s.active %}
+            <span class="status-active">ACTIVE</span>
+          {% else %}
+            <span class="status-inactive">Inactive</span>
+          {% endif %}
+        </td>
+        <td class="actions">
+          <a href="/attendance/{{ s.id }}" class="btn-view">View Attendance</a>
+          {% if not s.active %}
+            <a href="/start_session/{{ s.id }}" class="btn-start">Start Session</a>
+          {% else %}
+            <a href="/end_session/{{ s.id }}" class="btn-end">End Session</a>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="alert info">
+    <p>No sessions scheduled for today. Create a new session below.</p>
+  </div>
+  {% endif %}
+
+  <div class="form-container">
+    <h3>Create New Session</h3>
+    <form action="/create_session" method="post">
+      <div class="form-group">
+        <label>Subject:</label>
+        <input type="text" name="subject" placeholder="e.g., Mathematics" required>
+      </div>
+      <div class="form-group">
+        <label>Teacher:</label>
+        <input type="text" name="teacher" placeholder="e.g., Dr. Smith" required>
+      </div>
+      <div class="form-group">
+        <label>Date:</label>
+        <input type="date" name="date" value="{{ "now" | datetimeformat('%Y-%m-%d') }}" required>
+      </div>
+      <div class="form-group">
+        <label>Start Time:</label>
+        <input type="time" name="start_time" required>
+      </div>
+      <div class="form-group">
+        <label>End Time:</label>
+        <input type="time" name="end_time" required>
+      </div>
+      <button type="submit" class="btn-create">Create Session</button>
+    </form>
+  </div>
+
+  <div class="instructions">
+    <h3>Quick Start Guide:</h3>
+    <ol>
+      <li>Create a session using the form above</li>
+      <li>Click "Start Session" to activate attendance tracking</li>
+      <li>Run <code>python recognize_run.py</code> in another terminal</li>
+      <li>Students will be automatically recognized and tracked</li>
+      <li>Click "End Session" when class is over</li>
+      <li>View attendance records using "View Attendance"</li>
+    </ol>
+  </div>
+</body>
+</html>
